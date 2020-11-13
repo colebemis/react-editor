@@ -12,7 +12,7 @@ import jsx from './jsx'
 
 const INITIAL_CODE = `<div style={{ padding: 16 }}>
   <h1 style={{ margin: 0 }}>Hello world</h1>
-  <p>Start editing to see some magic happen ✨</p>
+  <p>Start editing to see some magic happen</p>
 </div>
 `
 
