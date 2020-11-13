@@ -8,12 +8,15 @@ import React from 'react'
 import { Controlled as CodeMirror } from 'react-codemirror2'
 import { ErrorBoundary } from 'react-error-boundary'
 import './codemirror.css'
+import jsx from './jsx'
 
 const INITIAL_CODE = `<div style={{ padding: 16 }}>
   <h1 style={{ margin: 0 }}>Hello world</h1>
+  <p>Start editing to see some magic happen ✨</p>
 </div>
 `
 
+// TODO: Write tests
 function App() {
   const [code, setCode] = React.useState(INITIAL_CODE)
   const [error, setError] = React.useState('')
@@ -24,14 +27,14 @@ function App() {
       const transformedCode = transform(
         `<React.Fragment>${code}</React.Fragment>`,
         {
-          plugins: [babelPluginTransformJsx],
+          plugins: [[babelPluginTransformJsx, { pragma: 'jsx' }]],
         },
       ).code
       // Remove trailing semicolon to convert the transformed code into an expression
       const expression = transformedCode?.trim().replace(/;$/, '')
       // eslint-disable-next-line no-new-func
-      const fn = new Function('React', `return (${expression})`)
-      const element: JSX.Element = fn(React)
+      const fn = new Function('React', 'jsx', `return (${expression})`)
+      const element: JSX.Element = fn(React, jsx)
 
       setElement(element)
       setError('')
