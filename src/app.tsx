@@ -24,12 +24,9 @@ function App() {
 
   React.useEffect(() => {
     try {
-      const transformedCode = transform(
-        `<React.Fragment>${code}</React.Fragment>`,
-        {
-          plugins: [[babelPluginTransformJsx, { pragma: 'jsx' }]],
-        },
-      ).code
+      const transformedCode = transform(`<>${code.trim()}</>`, {
+        plugins: [[babelPluginTransformJsx, { pragma: 'jsx' }]],
+      }).code
       // Remove trailing semicolon to convert the transformed code into an expression
       const expression = transformedCode?.trim().replace(/;$/, '')
       const scope = { React, jsx }
