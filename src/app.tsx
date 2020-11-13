@@ -9,15 +9,13 @@ import { ErrorBoundary } from 'react-error-boundary'
 import './codemirror.css'
 import jsx from './jsx'
 
-const INITIAL_CODE = `<div style={{ padding: 16 }}>
-  <h1 style={{ margin: 0 }}>Hello world</h1>
-  <p>Start editing to see some magic happen</p>
-</div>
-`
+interface AppProps {
+  initialCode: string
+}
 
 // TODO: Write tests
-function App() {
-  const [code, setCode] = React.useState(INITIAL_CODE)
+function App({ initialCode }: AppProps) {
+  const [code, setCode] = React.useState(initialCode)
   const [error, setError] = React.useState('')
   const [element, setElement] = React.useState<JSX.Element>()
 
