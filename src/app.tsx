@@ -3,7 +3,6 @@ import babelPluginTransformJsx from '@babel/plugin-transform-react-jsx'
 import { transform } from '@babel/standalone'
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/mode/jsx/jsx'
-import 'codemirror/theme/monokai.css'
 import React from 'react'
 import { Controlled as CodeMirror } from 'react-codemirror2'
 import { ErrorBoundary } from 'react-error-boundary'
@@ -46,6 +45,8 @@ function App() {
       style={{
         display: 'grid',
         gridTemplateColumns: '50% 50%',
+        gridGap: 1,
+        backgroundColor: 'lightgray',
         width: '100vw',
         height: '100vh',
       }}
@@ -57,31 +58,37 @@ function App() {
           onCursor={(editor) => console.log(editor.getCursor())}
           options={{
             mode: 'jsx',
-            theme: 'monokai',
             lineNumbers: true,
           }}
         />
         {error ? (
-          <pre
-            style={{
-              margin: 0,
-              padding: 16,
-              color: 'white',
-              background: 'crimson',
-              whiteSpace: 'pre-wrap',
-            }}
-          >
-            {error}
-          </pre>
+          // TODO: Animate enter/exit
+          <div role="alert">
+            <pre
+              style={{
+                margin: 0,
+                padding: 16,
+                fontFamily: 'Menlo, monospace',
+                fontSize: 14,
+                lineHeight: 1.5,
+                whiteSpace: 'pre-wrap',
+                backgroundColor: 'gold',
+              }}
+            >
+              Error: {error}
+            </pre>
+          </div>
         ) : null}
       </div>
-      <ErrorBoundary
-        fallback={<div style={{ padding: 16 }}>Something went wrong.</div>}
-        onError={(error) => setError(error.message)}
-        resetKeys={[code]}
-      >
-        <div>{element}</div>
-      </ErrorBoundary>
+      <div style={{ backgroundColor: 'white' }}>
+        <ErrorBoundary
+          fallback={<div style={{ padding: 16 }}>Something went wrong.</div>}
+          onError={(error) => setError(error.message)}
+          resetKeys={[code]}
+        >
+          <div>{element}</div>
+        </ErrorBoundary>
+      </div>
     </div>
   )
 }
