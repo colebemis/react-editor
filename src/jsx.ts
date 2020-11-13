@@ -11,6 +11,7 @@ export default function jsx(
     type,
     merge(props, {
       css: {
+        cursor: 'default',
         ':hover': {
           outline: '1px solid dodgerblue',
         },
