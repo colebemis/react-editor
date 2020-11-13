@@ -18,6 +18,9 @@ function App({ initialCode }: AppProps) {
   const [code, setCode] = React.useState(initialCode)
   const [error, setError] = React.useState('')
   const [element, setElement] = React.useState<JSX.Element>()
+  const [cursorPosition, setCursorPosition] = React.useState<
+    CodeMirror.Position
+  >()
 
   React.useEffect(() => {
     try {
@@ -53,7 +56,7 @@ function App({ initialCode }: AppProps) {
         <CodeMirror
           value={code}
           onBeforeChange={(editor, data, value) => setCode(value)}
-          onCursor={(editor) => console.log(editor.getCursor())}
+          onCursor={(editor) => setCursorPosition(editor.getCursor())}
           options={{
             mode: 'jsx',
             lineNumbers: true,
@@ -86,6 +89,7 @@ function App({ initialCode }: AppProps) {
         >
           <div>{element}</div>
         </ErrorBoundary>
+        <pre>{JSON.stringify(cursorPosition, null, 2)}</pre>
       </div>
     </div>
   )
