@@ -32,9 +32,10 @@ function App() {
       ).code
       // Remove trailing semicolon to convert the transformed code into an expression
       const expression = transformedCode?.trim().replace(/;$/, '')
+      const scope = { React, jsx }
       // eslint-disable-next-line no-new-func
-      const fn = new Function('React', 'jsx', `return (${expression})`)
-      const element: JSX.Element = fn(React, jsx)
+      const fn = new Function(...Object.keys(scope), `return (${expression})`)
+      const element: JSX.Element = fn(...Object.values(scope))
 
       setElement(element)
       setError('')
