@@ -54,18 +54,16 @@ function App() {
       }}
     >
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <div style={{ flexGrow: 1 }}>
-          <CodeMirror
-            value={code}
-            onBeforeChange={(editor, data, value) => setCode(value)}
-            onCursor={(editor) => console.log(editor.getCursor())}
-            options={{
-              mode: 'jsx',
-              theme: 'monokai',
-              lineNumbers: true,
-            }}
-          />
-        </div>
+        <CodeMirror
+          value={code}
+          onBeforeChange={(editor, data, value) => setCode(value)}
+          onCursor={(editor) => console.log(editor.getCursor())}
+          options={{
+            mode: 'jsx',
+            theme: 'monokai',
+            lineNumbers: true,
+          }}
+        />
         {error ? (
           <pre
             style={{
