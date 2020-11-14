@@ -1,6 +1,8 @@
-# Getting Started with Create React App
+# React Editor
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+![Tests](https://github.com/colebemis/react-editor/workflows/Tests/badge.svg)
+
+https://react-editor.netlify.app
 
 ## Available Scripts
 
