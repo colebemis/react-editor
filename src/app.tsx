@@ -13,8 +13,7 @@ interface AppProps {
   initialCode: string
 }
 
-// TODO: Write tests
-function App({ initialCode }: AppProps) {
+export default function App({ initialCode }: AppProps) {
   const [code, setCode] = React.useState(initialCode)
   const [error, setError] = React.useState('')
   const [element, setElement] = React.useState<JSX.Element>()
@@ -27,7 +26,7 @@ function App({ initialCode }: AppProps) {
       const transformedCode = transform(`<>${code.trim()}</>`, {
         plugins: [[babelPluginTransformJsx, { pragma: 'jsx' }]],
       }).code
-      // Remove trailing semicolon to convert the transformed code into an expression
+      // Remove trailing semicolon to convert the transformed code into an expression.
       const expression = transformedCode?.trim().replace(/;$/, '')
       const scope = { React, jsx }
       // eslint-disable-next-line no-new-func
@@ -63,7 +62,6 @@ function App({ initialCode }: AppProps) {
           }}
         />
         {error ? (
-          // TODO: Animate enter/exit
           <div role="alert">
             <pre
               style={{
@@ -95,4 +93,6 @@ function App({ initialCode }: AppProps) {
   )
 }
 
-export default App
+App.defaultProps = {
+  initialCode: '',
+}

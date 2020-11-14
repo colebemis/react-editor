@@ -7,6 +7,11 @@ export default function jsx(
   props?: any,
   ...children: React.ReactNode[]
 ) {
+  // Don't pass extra props to fragments.
+  if (typeof type === 'symbol') {
+    return emotionJsx(type as any, props, ...children)
+  }
+
   return emotionJsx(
     type,
     merge(props, {
@@ -16,7 +21,6 @@ export default function jsx(
           outline: '1px solid dodgerblue',
         },
       },
-      // TODO: Don't apply `onClick` prop to `React.Fragment`
       // TODO: Don't stop event propagation when command key is pressed
       onClick: (event: React.MouseEvent) => {
         event.stopPropagation()
