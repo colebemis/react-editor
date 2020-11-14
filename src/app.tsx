@@ -14,7 +14,7 @@ interface AppProps {
 export default function App({ initialCode }: AppProps) {
   const [state, send] = useMachine(appMachine, {
     context: { code: initialCode },
-    devTools: process.env.NODE_ENV === 'development',
+    devTools: true,
   })
 
   return (
