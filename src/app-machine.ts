@@ -7,11 +7,13 @@ import jsx from './jsx'
 
 type AppEvent =
   | { type: 'CODE_CHANGE'; value: string }
+  | { type: 'CURSOR'; position: CodeMirror.Position }
   | { type: 'ERROR'; message: string }
 
 interface AppContext {
   code: string
   element?: JSX.Element
+  cursorPosition?: CodeMirror.Position
   error: string
 }
 
@@ -24,6 +26,33 @@ export default Machine<AppContext, AppEvent>(
       error: '',
     },
     states: {
+      idle: {
+        on: {
+          CODE_CHANGE: {
+            target: 'debouncing',
+            actions: assign({ code: (context, event) => event.value }),
+          },
+          CURSOR: {
+            actions: assign({
+              cursorPosition: (context, event) => event.position,
+            }),
+          },
+          ERROR: {
+            actions: assign({ error: (context, event) => event.message }),
+          },
+        },
+      },
+      debouncing: {
+        on: {
+          CODE_CHANGE: {
+            target: 'debouncing',
+            actions: assign({ code: (context, event) => event.value }),
+          },
+        },
+        after: {
+          400: 'evaluatingCode',
+        },
+      },
       evaluatingCode: {
         invoke: {
           id: 'evaluateCode',
@@ -38,17 +67,6 @@ export default Machine<AppContext, AppEvent>(
           onError: {
             target: 'idle',
             actions: assign({ error: (context, event) => event.data.message }),
-          },
-        },
-      },
-      idle: {
-        on: {
-          CODE_CHANGE: {
-            target: 'evaluatingCode',
-            actions: assign({ code: (context, event) => event.value }),
-          },
-          ERROR: {
-            actions: assign({ error: (context, event) => event.message }),
           },
         },
       },

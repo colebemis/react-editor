@@ -14,11 +14,8 @@ interface AppProps {
 export default function App({ initialCode }: AppProps) {
   const [state, send] = useMachine(appMachine, {
     context: { code: initialCode },
-    devTools: process.env.NODE_ENV !== 'production',
+    devTools: process.env.NODE_ENV === 'development',
   })
-  const [cursorPosition, setCursorPosition] = React.useState<
-    CodeMirror.Position
-  >()
 
   return (
     <div
@@ -37,7 +34,9 @@ export default function App({ initialCode }: AppProps) {
           onBeforeChange={(editor, data, value) =>
             send('CODE_CHANGE', { value })
           }
-          onCursor={(editor) => setCursorPosition(editor.getCursor())}
+          onCursor={(editor) =>
+            send('CURSOR', { position: editor.getCursor() })
+          }
           options={{
             mode: 'jsx',
             lineNumbers: true,
@@ -69,7 +68,7 @@ export default function App({ initialCode }: AppProps) {
         >
           <div>{state.context.element}</div>
         </ErrorBoundary>
-        <pre>{JSON.stringify(cursorPosition, null, 2)}</pre>
+        <pre>{JSON.stringify(state.context.cursorPosition, null, 2)}</pre>
       </div>
     </div>
   )
