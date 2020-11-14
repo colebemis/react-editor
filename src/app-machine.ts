@@ -25,17 +25,19 @@ export default Machine<AppContext, AppEvent>(
       code: '',
       error: '',
     },
+    on: {
+      CURSOR: {
+        actions: assign({
+          cursorPosition: (context, event) => event.position,
+        }),
+      },
+    },
     states: {
       idle: {
         on: {
           CODE_CHANGE: {
             target: 'debouncing',
             actions: assign({ code: (context, event) => event.value }),
-          },
-          CURSOR: {
-            actions: assign({
-              cursorPosition: (context, event) => event.position,
-            }),
           },
           ERROR: {
             actions: assign({ error: (context, event) => event.message }),
