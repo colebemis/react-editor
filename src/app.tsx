@@ -64,7 +64,7 @@ export default function App({ initialCode }: AppProps) {
         <ErrorBoundary
           fallback={<div style={{ padding: 16 }}>Something went wrong.</div>}
           onError={(error) => send('ERROR', { message: error.message })}
-          resetKeys={[state.context.code]}
+          resetKeys={[state.context.element]}
         >
           <div>{state.context.element}</div>
         </ErrorBoundary>
