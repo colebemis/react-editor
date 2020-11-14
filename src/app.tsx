@@ -1,44 +1,21 @@
-// @ts-ignore
-import babelPluginTransformJsx from '@babel/plugin-transform-react-jsx'
-import { transform } from '@babel/standalone'
+import { useMachine } from '@xstate/react'
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/mode/jsx/jsx'
 import React from 'react'
 import { Controlled as CodeMirror } from 'react-codemirror2'
 import { ErrorBoundary } from 'react-error-boundary'
+import appMachine from './app-machine'
 import './codemirror.css'
-import jsx from './jsx'
 
 interface AppProps {
   initialCode: string
 }
 
 export default function App({ initialCode }: AppProps) {
-  const [code, setCode] = React.useState(initialCode)
-  const [error, setError] = React.useState('')
-  const [element, setElement] = React.useState<JSX.Element>()
-  const [cursorPosition, setCursorPosition] = React.useState<
-    CodeMirror.Position
-  >()
-
-  React.useEffect(() => {
-    try {
-      const transformedCode = transform(`<>${code.trim()}</>`, {
-        plugins: [[babelPluginTransformJsx, { pragma: 'jsx' }]],
-      }).code
-      // Remove trailing semicolon to convert the transformed code into an expression.
-      const expression = transformedCode?.trim().replace(/;$/, '')
-      const scope = { React, jsx }
-      // eslint-disable-next-line no-new-func
-      const fn = new Function(...Object.keys(scope), `return (${expression})`)
-      const element: JSX.Element = fn(...Object.values(scope))
-
-      setElement(element)
-      setError('')
-    } catch (error) {
-      setError(error.message)
-    }
-  }, [code])
+  const [state, send] = useMachine(appMachine, {
+    context: { code: initialCode },
+    devTools: true,
+  })
 
   return (
     <div
@@ -53,15 +30,19 @@ export default function App({ initialCode }: AppProps) {
     >
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <CodeMirror
-          value={code}
-          onBeforeChange={(editor, data, value) => setCode(value)}
-          onCursor={(editor) => setCursorPosition(editor.getCursor())}
+          value={state.context.code}
+          onBeforeChange={(editor, data, value) =>
+            send('CODE_CHANGE', { value })
+          }
+          onCursor={(editor) =>
+            send('CURSOR', { position: editor.getCursor() })
+          }
           options={{
             mode: 'jsx',
             lineNumbers: true,
           }}
         />
-        {error ? (
+        {state.context.error ? (
           <div role="alert">
             <pre
               style={{
@@ -74,7 +55,7 @@ export default function App({ initialCode }: AppProps) {
                 backgroundColor: 'gold',
               }}
             >
-              Error: {error}
+              Error: {state.context.error}
             </pre>
           </div>
         ) : null}
@@ -82,12 +63,12 @@ export default function App({ initialCode }: AppProps) {
       <div style={{ backgroundColor: 'white' }}>
         <ErrorBoundary
           fallback={<div style={{ padding: 16 }}>Something went wrong.</div>}
-          onError={(error) => setError(error.message)}
-          resetKeys={[code]}
+          onError={(error) => send('ERROR', { message: error.message })}
+          resetKeys={[state.context.element]}
         >
-          <div>{element}</div>
+          <div>{state.context.element}</div>
         </ErrorBoundary>
-        <pre>{JSON.stringify(cursorPosition, null, 2)}</pre>
+        <pre>{JSON.stringify(state.context.cursorPosition, null, 2)}</pre>
       </div>
     </div>
   )
