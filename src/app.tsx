@@ -8,13 +8,19 @@ import { Controlled as CodeMirror } from 'react-codemirror2'
 import { ErrorBoundary } from 'react-error-boundary'
 import './codemirror.css'
 import jsx from './jsx'
+import { useMachine } from '@xstate/react'
+import appMachine from './app-machine'
 
 interface AppProps {
   initialCode: string
 }
 
 export default function App({ initialCode }: AppProps) {
-  const [code, setCode] = React.useState(initialCode)
+  const [state, send] = useMachine(appMachine, {
+    context: { code: initialCode },
+    devTools: process.env.NODE_ENV !== 'production',
+  })
+  // const [code, setCode] = React.useState(initialCode)
   const [error, setError] = React.useState('')
   const [element, setElement] = React.useState<JSX.Element>()
   const [cursorPosition, setCursorPosition] = React.useState<
@@ -23,7 +29,7 @@ export default function App({ initialCode }: AppProps) {
 
   React.useEffect(() => {
     try {
-      const transformedCode = transform(`<>${code.trim()}</>`, {
+      const transformedCode = transform(`<>${state.context.code.trim()}</>`, {
         plugins: [[babelPluginTransformJsx, { pragma: 'jsx' }]],
       }).code
       // Remove trailing semicolon to convert the transformed code into an expression.
@@ -38,7 +44,7 @@ export default function App({ initialCode }: AppProps) {
     } catch (error) {
       setError(error.message)
     }
-  }, [code])
+  }, [state.context.code])
 
   return (
     <div
@@ -53,8 +59,10 @@ export default function App({ initialCode }: AppProps) {
     >
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <CodeMirror
-          value={code}
-          onBeforeChange={(editor, data, value) => setCode(value)}
+          value={state.context.code}
+          onBeforeChange={(editor, data, value) =>
+            send({ type: 'CODE_CHANGE', value })
+          }
           onCursor={(editor) => setCursorPosition(editor.getCursor())}
           options={{
             mode: 'jsx',
@@ -83,7 +91,7 @@ export default function App({ initialCode }: AppProps) {
         <ErrorBoundary
           fallback={<div style={{ padding: 16 }}>Something went wrong.</div>}
           onError={(error) => setError(error.message)}
-          resetKeys={[code]}
+          resetKeys={[state.context.code]}
         >
           <div>{element}</div>
         </ErrorBoundary>
