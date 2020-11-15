@@ -1,3 +1,4 @@
+import { types } from '@babel/core'
 // @ts-ignore
 import babelPluginTransformJsx from '@babel/plugin-transform-react-jsx'
 import { transform } from '@babel/standalone'
@@ -10,6 +11,7 @@ interface AppContext {
   code: string
   element?: JSX.Element
   cursorPosition?: CodeMirror.Position
+  selectedElementLocation: types.SourceLocation | null
   error: string
 }
 
@@ -24,6 +26,10 @@ export default Machine<AppContext, AppEvent>(
     initial: 'evaluatingCode',
     context: {
       code: '',
+      selectedElementLocation: {
+        start: { line: 2, column: 2 },
+        end: { line: 2, column: 44 },
+      },
       error: '',
     },
     on: {

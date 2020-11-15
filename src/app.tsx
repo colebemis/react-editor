@@ -17,6 +17,18 @@ export default function App({ initialCode }: AppProps) {
     devTools: true,
   })
 
+  const editorRef = React.useRef<CodeMirror.Editor>()
+
+  React.useEffect(() => {
+    if (editorRef.current && state.context.selectedElementLocation) {
+      editorRef.current.markText(
+        toCodeMirrorPosition(state.context.selectedElementLocation.start),
+        toCodeMirrorPosition(state.context.selectedElementLocation.end),
+        { className: 'selected-element' },
+      )
+    }
+  }, [state.context.selectedElementLocation])
+
   return (
     <div
       style={{
@@ -30,6 +42,7 @@ export default function App({ initialCode }: AppProps) {
     >
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <CodeMirror
+          editorDidMount={(editor) => (editorRef.current = editor)}
           value={state.context.code}
           onBeforeChange={(editor, data, value) =>
             send('CODE_CHANGE', { value })
@@ -76,4 +89,14 @@ export default function App({ initialCode }: AppProps) {
 
 App.defaultProps = {
   initialCode: '',
+}
+
+function toCodeMirrorPosition(location: {
+  line: number
+  column: number
+}): CodeMirror.Position {
+  return {
+    line: location.line - 1, // Convert to zero-indexed line number.
+    ch: location.column,
+  }
 }
