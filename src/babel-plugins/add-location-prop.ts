@@ -10,8 +10,8 @@ export default function addLocProp({ types: t }: { types: typeof types }) {
 
         const { start, end } = path.node.loc
 
-        const locAttribute = t.jsxAttribute(
-          t.jsxIdentifier('__loc'),
+        const locationAttribute = t.jsxAttribute(
+          t.jsxIdentifier('__location'),
           t.jsxExpressionContainer(
             t.objectExpression([
               t.objectProperty(
@@ -44,7 +44,7 @@ export default function addLocProp({ types: t }: { types: typeof types }) {
           ),
         )
 
-        path.node.openingElement.attributes.push(locAttribute)
+        path.node.openingElement.attributes.push(locationAttribute)
       },
     },
   }

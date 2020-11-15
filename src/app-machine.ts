@@ -3,7 +3,7 @@ import babelPluginTransformJsx from '@babel/plugin-transform-react-jsx'
 import { transform } from '@babel/standalone'
 import React from 'react'
 import { assign, Machine } from 'xstate'
-import babelPluginAddLocProp from './babel-plugins/add-loc-prop'
+import babelPluginAddLocationProp from './babel-plugins/add-location-prop'
 import jsx from './jsx'
 
 interface AppContext {
@@ -89,7 +89,7 @@ export default Machine<AppContext, AppEvent>(
       async evaluateCode(context) {
         const transformedCode = transform(`<>${context.code.trim()}</>`, {
           plugins: [
-            babelPluginAddLocProp,
+            babelPluginAddLocationProp,
             [babelPluginTransformJsx, { pragma: 'jsx' }],
           ],
         }).code
