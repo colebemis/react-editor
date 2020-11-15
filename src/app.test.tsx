@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
-import App from '../app'
+import App from './app'
 
 test('renders without crashing', () => {
   render(<App />)
