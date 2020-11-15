@@ -1,9 +1,13 @@
 import { NodePath, types } from '@babel/core'
 
-export default function addLocProp({ types: t }: { types: typeof types }) {
+export default function babelPluginAddLocProp({
+  types: t,
+}: {
+  types: typeof types
+}) {
   return {
     visitor: {
-      JSXElement(path: NodePath<types.JSXElement>) {
+      JSXElement: (path: NodePath<types.JSXElement>) => {
         if (!path.node.loc) {
           return
         }
