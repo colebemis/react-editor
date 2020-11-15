@@ -7,7 +7,7 @@ import { assign, Machine } from 'xstate'
 import babelPluginAddLocationProp from './babel-plugins/add-location-prop'
 import jsx from './jsx'
 
-interface AppContext {
+export interface EditorContext {
   code: string
   element?: JSX.Element
   cursorPosition?: CodeMirror.Position
@@ -15,14 +15,14 @@ interface AppContext {
   error: string
 }
 
-type AppEvent =
+export type EditorEvent =
   | { type: 'CODE_CHANGE'; value: string }
   | { type: 'CURSOR'; position: CodeMirror.Position }
   | { type: 'ERROR'; message: string }
 
-export default Machine<AppContext, AppEvent>(
+export default Machine<EditorContext, EditorEvent>(
   {
-    id: 'app',
+    id: 'editor',
     initial: 'evaluatingCode',
     context: {
       code: '',
