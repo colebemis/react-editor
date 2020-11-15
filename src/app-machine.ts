@@ -5,17 +5,17 @@ import React from 'react'
 import { assign, Machine } from 'xstate'
 import jsx from './jsx'
 
-type AppEvent =
-  | { type: 'CODE_CHANGE'; value: string }
-  | { type: 'CURSOR'; position: CodeMirror.Position }
-  | { type: 'ERROR'; message: string }
-
 interface AppContext {
   code: string
   element?: JSX.Element
   cursorPosition?: CodeMirror.Position
   error: string
 }
+
+type AppEvent =
+  | { type: 'CODE_CHANGE'; value: string }
+  | { type: 'CURSOR'; position: CodeMirror.Position }
+  | { type: 'ERROR'; message: string }
 
 export default Machine<AppContext, AppEvent>(
   {
@@ -40,6 +40,7 @@ export default Machine<AppContext, AppEvent>(
             actions: assign({ code: (context, event) => event.value }),
           },
           ERROR: {
+            target: 'error',
             actions: assign({ error: (context, event) => event.message }),
           },
         },
@@ -67,8 +68,16 @@ export default Machine<AppContext, AppEvent>(
             }),
           },
           onError: {
-            target: 'idle',
+            target: 'error',
             actions: assign({ error: (context, event) => event.data.message }),
+          },
+        },
+      },
+      error: {
+        on: {
+          CODE_CHANGE: {
+            target: 'debouncing',
+            actions: assign({ code: (context, event) => event.value }),
           },
         },
       },
