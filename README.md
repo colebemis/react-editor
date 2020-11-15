@@ -1,6 +1,6 @@
 # React Editor
 
-![Tests](https://github.com/colebemis/react-editor/workflows/Tests/badge.svg)
+![Tests](https://github.com/colebemis/react-editor/workflows/Tests/badge.svg) [![Netlify Status](https://api.netlify.com/api/v1/badges/ae3a50cc-0f7e-4660-a8d2-fb213375d945/deploy-status)](https://app.netlify.com/sites/react-editor/deploys)
 
 https://react-editor.netlify.app
 
