@@ -12,6 +12,10 @@ export default function jsx(
     return emotionJsx(type as any, props, ...children)
   }
 
+  props = props || {}
+  const loc = props.__loc
+  delete props.__loc
+
   return emotionJsx(
     type,
     merge(props, {
@@ -24,7 +28,7 @@ export default function jsx(
       // TODO: Don't stop event propagation when command key is pressed
       onClick: (event: React.MouseEvent) => {
         event.stopPropagation()
-        console.log({ type, props, children })
+        console.log({ type, loc, props, children })
       },
     }),
     ...children,
