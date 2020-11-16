@@ -27,21 +27,27 @@ export default class BabelPluginGetElementByPosition {
 
 export function inRange(
   position: CodeMirror.Position,
-  location: types.SourceLocation,
+  range: types.SourceLocation,
 ) {
   // Line numbers in `position` are zero-indexed.
-  // Line numbers in `location` are one-indexed.
+  // Line numbers in `range` are one-indexed.
 
-  if (position.line === location.start.line - 1) {
-    return position.ch >= location.start.column
+  if (
+    position.line === range.start.line - 1 &&
+    position.line === range.end.line - 1
+  ) {
+    return position.ch >= range.start.column && position.ch <= range.end.column
   }
 
-  if (position.line === location.end.line - 1) {
-    return position.ch <= location.end.column
+  if (position.line === range.start.line - 1) {
+    return position.ch >= range.start.column
+  }
+
+  if (position.line === range.end.line - 1) {
+    return position.ch <= range.end.column
   }
 
   return (
-    position.line > location.start.line - 1 &&
-    position.line < location.end.line - 1
+    position.line > range.start.line - 1 && position.line < range.end.line - 1
   )
 }

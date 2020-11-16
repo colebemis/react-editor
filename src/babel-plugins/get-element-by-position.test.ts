@@ -66,19 +66,32 @@ test('handles position between two JSX elements', () => {
 })
 
 describe('inRange', () => {
-  test('returns expected value', () => {
-    const location = {
+  test('returns expected value for multiline range', () => {
+    const range = {
       start: { line: 1, column: 2 },
       end: { line: 3, column: 2 },
     }
 
-    expect(inRange({ line: 0, ch: 1 }, location)).toEqual(false)
-    expect(inRange({ line: 0, ch: 2 }, location)).toEqual(true)
-    expect(inRange({ line: 0, ch: 3 }, location)).toEqual(true)
-    expect(inRange({ line: 0, ch: 4 }, location)).toEqual(true)
-    expect(inRange({ line: 1, ch: 4 }, location)).toEqual(true)
-    expect(inRange({ line: 2, ch: 1 }, location)).toEqual(true)
-    expect(inRange({ line: 2, ch: 2 }, location)).toEqual(true)
-    expect(inRange({ line: 2, ch: 3 }, location)).toEqual(false)
+    expect(inRange({ line: 0, ch: 1 }, range)).toEqual(false)
+    expect(inRange({ line: 0, ch: 2 }, range)).toEqual(true)
+    expect(inRange({ line: 0, ch: 3 }, range)).toEqual(true)
+    expect(inRange({ line: 0, ch: 4 }, range)).toEqual(true)
+    expect(inRange({ line: 1, ch: 4 }, range)).toEqual(true)
+    expect(inRange({ line: 2, ch: 1 }, range)).toEqual(true)
+    expect(inRange({ line: 2, ch: 2 }, range)).toEqual(true)
+    expect(inRange({ line: 2, ch: 3 }, range)).toEqual(false)
+  })
+
+  test('returns expected value for single line range', () => {
+    const range = {
+      start: { line: 1, column: 2 },
+      end: { line: 1, column: 4 },
+    }
+
+    expect(inRange({ line: 0, ch: 1 }, range)).toEqual(false)
+    expect(inRange({ line: 0, ch: 2 }, range)).toEqual(true)
+    expect(inRange({ line: 0, ch: 3 }, range)).toEqual(true)
+    expect(inRange({ line: 0, ch: 4 }, range)).toEqual(true)
+    expect(inRange({ line: 0, ch: 5 }, range)).toEqual(false)
   })
 })
