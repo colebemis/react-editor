@@ -31,20 +31,17 @@ export function inRange(
 ) {
   // Line numbers in `position` are zero-indexed.
   // Line numbers in `location` are one-indexed.
-  if (
-    position.line >= location.start.line - 1 &&
-    position.line <= location.end.line - 1
-  ) {
-    if (position.line === location.start.line - 1) {
-      return position.ch >= location.start.column
-    }
 
-    if (position.line === location.end.line - 1) {
-      return position.ch <= location.end.column
-    }
-
-    return true
+  if (position.line === location.start.line - 1) {
+    return position.ch >= location.start.column
   }
 
-  return false
+  if (position.line === location.end.line - 1) {
+    return position.ch <= location.end.column
+  }
+
+  return (
+    position.line >= location.start.line - 1 &&
+    position.line <= location.end.line - 1
+  )
 }

@@ -65,7 +65,7 @@ test('handles position between two JSX elements', () => {
   testGetElementByPosition(code, position, expected)
 })
 
-describe.only('inRange', () => {
+describe('inRange', () => {
   test('returns expected value', () => {
     const location = {
       start: { line: 1, column: 2 },
