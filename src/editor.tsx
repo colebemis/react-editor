@@ -10,10 +10,13 @@ export default function Editor() {
   const [state, send] = useEditorMachine()
 
   const editorRef = React.useRef<CodeMirror.Editor>()
+  const selectedElementMarkerRef = React.useRef<CodeMirror.TextMarker>()
 
   React.useEffect(() => {
+    selectedElementMarkerRef.current?.clear()
+
     if (state?.context.selectedElementLocation) {
-      editorRef.current?.markText(
+      selectedElementMarkerRef.current = editorRef.current?.markText(
         toCodeMirrorPosition(state.context.selectedElementLocation.start),
         toCodeMirrorPosition(state.context.selectedElementLocation.end),
         { className: 'selected-element' },
@@ -73,7 +76,6 @@ export default function Editor() {
         >
           <div>{state?.context.element}</div>
         </ErrorBoundary>
-        <pre>{JSON.stringify(state?.context.cursorPosition, null, 2)}</pre>
       </div>
     </div>
   )

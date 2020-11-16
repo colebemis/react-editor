@@ -1,17 +1,19 @@
 import { types } from '@babel/core'
 // @ts-ignore
+import babelPluginSyntaxJsx from '@babel/plugin-syntax-jsx'
+// @ts-ignore
 import babelPluginTransformJsx from '@babel/plugin-transform-react-jsx'
 import { transform } from '@babel/standalone'
 import React from 'react'
 import { assign, Machine } from 'xstate'
 import babelPluginAddLocationProp from './babel-plugins/add-location-prop'
+import BabelPluginGetElementByPosition from './babel-plugins/get-element-by-position'
 import jsx from './jsx'
 
 export interface EditorContext {
   code: string
   element?: JSX.Element
-  cursorPosition?: CodeMirror.Position
-  selectedElementLocation: types.SourceLocation | null
+  selectedElementLocation?: types.SourceLocation | null
   error: string
 }
 
@@ -26,16 +28,13 @@ export default Machine<EditorContext, EditorEvent>(
     initial: 'evaluatingCode',
     context: {
       code: '',
-      selectedElementLocation: {
-        start: { line: 2, column: 2 },
-        end: { line: 2, column: 44 },
-      },
       error: '',
     },
     on: {
       CURSOR: {
         actions: assign({
-          cursorPosition: (context, event) => event.position,
+          selectedElementLocation: (context, event) =>
+            getElementByPosition(context.code, event.position)?.loc,
         }),
       },
     },
@@ -93,7 +92,7 @@ export default Machine<EditorContext, EditorEvent>(
   {
     services: {
       async evaluateCode(context) {
-        const transformedCode = transform(`<>${context.code.trim()}</>`, {
+        const transformedCode = transform(context.code, {
           plugins: [
             babelPluginAddLocationProp,
             [babelPluginTransformJsx, { pragma: 'jsx' }],
@@ -110,3 +109,19 @@ export default Machine<EditorContext, EditorEvent>(
     },
   },
 )
+
+function getElementByPosition(code: string, position: CodeMirror.Position) {
+  try {
+    const babelPluginGetElementByPosition = new BabelPluginGetElementByPosition(
+      position,
+    )
+
+    transform(code, {
+      plugins: [babelPluginSyntaxJsx, babelPluginGetElementByPosition.plugin],
+    })
+
+    return babelPluginGetElementByPosition.data
+  } catch (error) {
+    return null
+  }
+}
