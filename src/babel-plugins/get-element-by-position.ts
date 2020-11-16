@@ -15,8 +15,6 @@ export default class BabelPluginGetElementByPosition {
               return
             }
 
-            // console.lsog(position, path.node.loc)
-
             if (inRange(position, path.node.loc)) {
               this.data = path.node
             }
@@ -27,7 +25,7 @@ export default class BabelPluginGetElementByPosition {
   }
 }
 
-function inRange(
+export function inRange(
   position: CodeMirror.Position,
   location: types.SourceLocation,
 ) {
@@ -35,10 +33,16 @@ function inRange(
   // Line numbers in `location` are one-indexed.
   if (
     position.line >= location.start.line - 1 &&
-    position.ch >= location.start.column &&
-    position.line <= location.end.line - 1 &&
-    position.ch <= location.end.column
+    position.line <= location.end.line - 1
   ) {
+    if (position.line === location.start.line - 1) {
+      return position.ch >= location.start.column
+    }
+
+    if (position.line === location.end.line - 1) {
+      return position.ch <= location.end.column
+    }
+
     return true
   }
 

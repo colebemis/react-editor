@@ -1,8 +1,10 @@
+import generator from '@babel/generator'
 //@ts-ignore
 import babelPluginSyntaxJsx from '@babel/plugin-syntax-jsx'
 import { transform } from '@babel/standalone'
-import generator from '@babel/generator'
-import BabelPluginGetElementByPosition from './get-element-by-position'
+import BabelPluginGetElementByPosition, {
+  inRange,
+} from './get-element-by-position'
 
 function testGetElementByPosition(
   code: string,
@@ -61,4 +63,22 @@ test('handles position between two JSX elements', () => {
   const expected = '<button>Click me</button>'
 
   testGetElementByPosition(code, position, expected)
+})
+
+describe.only('inRange', () => {
+  test('returns expected value', () => {
+    const location = {
+      start: { line: 1, column: 2 },
+      end: { line: 3, column: 2 },
+    }
+
+    expect(inRange({ line: 0, ch: 1 }, location)).toEqual(false)
+    expect(inRange({ line: 0, ch: 2 }, location)).toEqual(true)
+    expect(inRange({ line: 0, ch: 3 }, location)).toEqual(true)
+    expect(inRange({ line: 0, ch: 4 }, location)).toEqual(true)
+    expect(inRange({ line: 1, ch: 4 }, location)).toEqual(true)
+    expect(inRange({ line: 2, ch: 1 }, location)).toEqual(true)
+    expect(inRange({ line: 2, ch: 2 }, location)).toEqual(true)
+    expect(inRange({ line: 2, ch: 3 }, location)).toEqual(false)
+  })
 })
