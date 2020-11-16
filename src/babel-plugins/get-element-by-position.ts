@@ -41,7 +41,7 @@ export function inRange(
   }
 
   return (
-    position.line >= location.start.line - 1 &&
-    position.line <= location.end.line - 1
+    position.line > location.start.line - 1 &&
+    position.line < location.end.line - 1
   )
 }
