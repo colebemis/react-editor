@@ -4,15 +4,13 @@ import babelPluginSyntaxJsx from '@babel/plugin-syntax-jsx'
 // @ts-ignore
 import babelPluginTransformJsx from '@babel/plugin-transform-react-jsx'
 import { transform } from '@babel/standalone'
-import React from 'react'
 import { assign, Machine } from 'xstate'
-import babelPluginAddLocationProp from './babel-plugins/add-location-prop'
 import BabelPluginGetElementByPosition from './babel-plugins/get-element-by-position'
-import jsx from './jsx'
+import babelPluginWrapElements from './babel-plugins/wrap-elements'
 
 export interface EditorContext {
   code: string
-  element?: JSX.Element
+  transformedCode?: string
   selectedElementLocation?: types.SourceLocation | null
   error: string
 }
@@ -20,6 +18,7 @@ export interface EditorContext {
 export type EditorEvent =
   | { type: 'CODE_CHANGE'; value: string }
   | { type: 'CURSOR'; position: CodeMirror.Position }
+  | { type: 'SELECT_ELEMENT'; location: types.SourceLocation }
   | { type: 'ERROR'; message: string }
 
 export default Machine<EditorContext, EditorEvent>(
@@ -49,6 +48,11 @@ export default Machine<EditorContext, EditorEvent>(
             target: 'error',
             actions: assign({ error: (context, event) => event.message }),
           },
+          SELECT_ELEMENT: {
+            actions: assign({
+              selectedElementLocation: (context, event) => event.location,
+            }),
+          },
         },
       },
       debouncing: {
@@ -64,12 +68,12 @@ export default Machine<EditorContext, EditorEvent>(
       },
       evaluatingCode: {
         invoke: {
-          id: 'evaluateCode',
-          src: 'evaluateCode',
+          id: 'transformCode',
+          src: 'transformCode',
           onDone: {
             target: 'idle',
             actions: assign({
-              element: (context, event) => event.data,
+              transformedCode: (context, event) => event.data,
               error: (context, event) => '',
             }),
           },
@@ -91,20 +95,12 @@ export default Machine<EditorContext, EditorEvent>(
   },
   {
     services: {
-      async evaluateCode(context) {
+      async transformCode(context) {
         const transformedCode = transform(context.code, {
-          plugins: [
-            babelPluginAddLocationProp,
-            [babelPluginTransformJsx, { pragma: 'jsx' }],
-          ],
+          plugins: [babelPluginWrapElements, [babelPluginTransformJsx]],
         }).code
         // Remove trailing semicolon to convert the transformed code into an expression.
-        const expression = transformedCode?.trim().replace(/;$/, '')
-        const scope = { React, jsx }
-        // eslint-disable-next-line no-new-func
-        const fn = new Function(...Object.keys(scope), `return (${expression})`)
-        const element: JSX.Element = fn(...Object.values(scope))
-        return element
+        return transformedCode?.trim().replace(/;$/, '')
       },
     },
   },

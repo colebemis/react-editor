@@ -2,9 +2,9 @@ import 'codemirror/lib/codemirror.css'
 import 'codemirror/mode/jsx/jsx'
 import React from 'react'
 import { Controlled as CodeMirror } from 'react-codemirror2'
-import { ErrorBoundary } from 'react-error-boundary'
 import './codemirror.css'
 import { useEditorMachine } from './editor-machine-provider'
+import Preview from './preview'
 
 export default function Editor() {
   const [state, send] = useEditorMachine()
@@ -69,13 +69,7 @@ export default function Editor() {
         ) : null}
       </div>
       <div style={{ backgroundColor: 'white' }}>
-        <ErrorBoundary
-          fallback={<div style={{ padding: 16 }}>Something went wrong.</div>}
-          onError={(error) => send?.('ERROR', { message: error.message })}
-          resetKeys={[state?.context.element]}
-        >
-          <div>{state?.context.element}</div>
-        </ErrorBoundary>
+        <Preview />
       </div>
     </div>
   )
