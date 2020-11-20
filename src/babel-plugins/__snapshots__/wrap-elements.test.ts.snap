@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`wraps JSX elements 1`] = `
+"<Wrapper __location={{
+  start: {
+    line: 1,
+    column: 0
+  },
+  end: {
+    line: 1,
+    column: 53
+  }
+}}><div><Wrapper style={{
+      margin: 0
+    }} __location={{
+      start: {
+        line: 1,
+        column: 5
+      },
+      end: {
+        line: 1,
+        column: 47
+      }
+    }}><h1>Hello world</h1></Wrapper></div></Wrapper>"
+`;
