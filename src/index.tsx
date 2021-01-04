@@ -11,6 +11,7 @@ if (process.env.NODE_ENV === 'development') {
 const INITIAL_CODE = `<div style={{ padding: 16 }}>
   <h1 style={{ margin: 0 }}>Hello world</h1>
   <p>Start editing to see some magic happen</p>
+  {[1, 2, 3].map(n => <div key={n}>{n}</div>)}
 </div>
 `
 

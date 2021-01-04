@@ -1,25 +1,29 @@
+import { types } from '@babel/core'
+// @ts-ignore
+import babelPluginSyntaxJsx from '@babel/plugin-syntax-jsx'
 // @ts-ignore
 import babelPluginTransformJsx from '@babel/plugin-transform-react-jsx'
 import { transform } from '@babel/standalone'
-import React from 'react'
 import { assign, Machine } from 'xstate'
-import jsx from './jsx'
+import BabelPluginGetElementByPosition from './babel-plugins/get-element-by-position'
+import babelPluginWrapElements from './babel-plugins/wrap-elements'
 
-interface AppContext {
+export interface EditorContext {
   code: string
-  element?: JSX.Element
-  cursorPosition?: CodeMirror.Position
+  transformedCode?: string
+  selectedElementLocation?: types.SourceLocation | null
   error: string
 }
 
-type AppEvent =
+export type EditorEvent =
   | { type: 'CODE_CHANGE'; value: string }
   | { type: 'CURSOR'; position: CodeMirror.Position }
+  | { type: 'SELECT_ELEMENT'; location: types.SourceLocation }
   | { type: 'ERROR'; message: string }
 
-export default Machine<AppContext, AppEvent>(
+export default Machine<EditorContext, EditorEvent>(
   {
-    id: 'app',
+    id: 'editor',
     initial: 'evaluatingCode',
     context: {
       code: '',
@@ -28,7 +32,8 @@ export default Machine<AppContext, AppEvent>(
     on: {
       CURSOR: {
         actions: assign({
-          cursorPosition: (context, event) => event.position,
+          selectedElementLocation: (context, event) =>
+            getElementByPosition(context.code, event.position)?.loc,
         }),
       },
     },
@@ -42,6 +47,11 @@ export default Machine<AppContext, AppEvent>(
           ERROR: {
             target: 'error',
             actions: assign({ error: (context, event) => event.message }),
+          },
+          SELECT_ELEMENT: {
+            actions: assign({
+              selectedElementLocation: (context, event) => event.location,
+            }),
           },
         },
       },
@@ -58,12 +68,12 @@ export default Machine<AppContext, AppEvent>(
       },
       evaluatingCode: {
         invoke: {
-          id: 'evaluateCode',
-          src: 'evaluateCode',
+          id: 'transformCode',
+          src: 'transformCode',
           onDone: {
             target: 'idle',
             actions: assign({
-              element: (context, event) => event.data,
+              transformedCode: (context, event) => event.data,
               error: (context, event) => '',
             }),
           },
@@ -85,18 +95,29 @@ export default Machine<AppContext, AppEvent>(
   },
   {
     services: {
-      async evaluateCode(context) {
-        const transformedCode = transform(`<>${context.code.trim()}</>`, {
-          plugins: [[babelPluginTransformJsx, { pragma: 'jsx' }]],
+      async transformCode(context) {
+        const transformedCode = transform(context.code, {
+          plugins: [babelPluginWrapElements, [babelPluginTransformJsx]],
         }).code
         // Remove trailing semicolon to convert the transformed code into an expression.
-        const expression = transformedCode?.trim().replace(/;$/, '')
-        const scope = { React, jsx }
-        // eslint-disable-next-line no-new-func
-        const fn = new Function(...Object.keys(scope), `return (${expression})`)
-        const element: JSX.Element = fn(...Object.values(scope))
-        return element
+        return transformedCode?.trim().replace(/;$/, '')
       },
     },
   },
 )
+
+function getElementByPosition(code: string, position: CodeMirror.Position) {
+  try {
+    const babelPluginGetElementByPosition = new BabelPluginGetElementByPosition(
+      position,
+    )
+
+    transform(code, {
+      plugins: [babelPluginSyntaxJsx, babelPluginGetElementByPosition.plugin],
+    })
+
+    return babelPluginGetElementByPosition.data
+  } catch (error) {
+    return null
+  }
+}

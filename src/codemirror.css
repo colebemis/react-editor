@@ -7,10 +7,13 @@
   height: 100%;
   font-family: Menlo, monospace;
   font-size: 14px;
-  line-height: 1.5;
 }
 
 .CodeMirror-gutters {
   border-right: 0;
   background-color: transparent;
+}
+
+.CodeMirror .selected-element {
+  background: rgba(255, 229, 100, 0.5);
 }
